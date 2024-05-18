@@ -134,31 +134,40 @@ public class CarGUI_4 extends JFrame implements ActionListener {
 
     @Override
     public void actionPerformed(ActionEvent e) {
+        String actionResult = "";
         if (e.getSource() == addProducerBtn) {
             String producerName = producerField.getText().trim();
             carDAO.addProducer(producerName);
+            actionResult = "Производитель '" + producerName + "' добавлен.";
         } else if (e.getSource() == addBrandBtn) {
             String brandName = brandField.getText().trim();
             int producerID = Integer.parseInt(producerIDField.getText().trim());
             carDAO.addBrand(brandName, producerID);
+            actionResult = "Марка '" + brandName + "' добавлена к производителю с ID " + producerID + ".";
         } else if (e.getSource() == updateBrandBtn) {
             String oldBrandName = oldBrandField.getText().trim();
             String newBrandName = newBrandField.getText().trim();
             carDAO.updateBrand(oldBrandName, newBrandName);
+            actionResult = "Марка '" + oldBrandName + "' обновлена на '" + newBrandName + "'.";
         } else if (e.getSource() == updateProducerBtn) {
             int producerID = Integer.parseInt(producerIDField.getText().trim());
             String newName = producerField.getText().trim();
             carDAO.updateProducer(producerID, newName);
+            actionResult = "Производитель с ID " + producerID + " обновлен на '" + newName + "'.";
         } else if (e.getSource() == deleteBrandBtn) {
             String brandName = oldBrandField.getText().trim();
             carDAO.deleteBrand(brandName);
+            actionResult = "Марка '" + brandName + "' удалена.";
         } else if (e.getSource() == deleteProducerBtn) {
             int producerID = Integer.parseInt(producerIDField.getText().trim());
             carDAO.deleteProducerAndBrands(producerID);
+            actionResult = "Производитель с ID " + producerID + " и все его марки удалены.";
         } else if (e.getSource() == displayBrandsBtn) {
             String brands = carDAO.displayBrands();
             displayArea.setText(brands);
+            actionResult = "Список марок автомобилей отображен.";
         }
+        displayArea.append(actionResult + "\n");
     }
 
     public static void main(String[] args) {
