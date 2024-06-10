@@ -6,11 +6,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.swing.table.DefaultTableModel;
 
 public class CarGUI_4 extends JFrame implements ActionListener {
     private JTextField producerField, brandField, producerIDField, oldBrandField, newBrandField;
     private JButton addProducerBtn, addBrandBtn, updateProducerBtn, updateBrandBtn, deleteBrandBtn, deleteProducerBtn, displayBrandsBtn;
-    private JTextArea displayArea;
+    private JTable displayTable;
+    private DefaultTableModel tableModel;
     private CarDAO_4 carDAO;
 
     public CarGUI_4() {
@@ -118,9 +120,9 @@ public class CarGUI_4 extends JFrame implements ActionListener {
         gbc.gridwidth = 2;
         panel.add(displayBrandsBtn, gbc);
 
-        displayArea = new JTextArea();
-        displayArea.setEditable(false);
-        JScrollPane scrollPane = new JScrollPane(displayArea);
+        tableModel = new DefaultTableModel(new String[]{"ID Производителя", "Название Производителя", "Название Марки"}, 0);
+        displayTable = new JTable(tableModel);
+        JScrollPane scrollPane = new JScrollPane(displayTable);
         gbc.gridy = 14;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
@@ -144,11 +146,13 @@ public class CarGUI_4 extends JFrame implements ActionListener {
             int producerID = Integer.parseInt(producerIDField.getText().trim());
             carDAO.addBrand(brandName, producerID);
             actionResult = "Марка '" + brandName + "' добавлена к производителю с ID " + producerID + ".";
+            displayBrands();
         } else if (e.getSource() == updateBrandBtn) {
             String oldBrandName = oldBrandField.getText().trim();
             String newBrandName = newBrandField.getText().trim();
             carDAO.updateBrand(oldBrandName, newBrandName);
             actionResult = "Марка '" + oldBrandName + "' обновлена на '" + newBrandName + "'.";
+            displayBrands();
         } else if (e.getSource() == updateProducerBtn) {
             int producerID = Integer.parseInt(producerIDField.getText().trim());
             String newName = producerField.getText().trim();
@@ -163,11 +167,27 @@ public class CarGUI_4 extends JFrame implements ActionListener {
             carDAO.deleteProducerAndBrands(producerID);
             actionResult = "Производитель с ID " + producerID + " и все его марки удалены.";
         } else if (e.getSource() == displayBrandsBtn) {
-            String brands = carDAO.displayBrands();
-            displayArea.setText(brands);
+            displayBrands();
             actionResult = "Список марок автомобилей отображен.";
         }
-        displayArea.append(actionResult + "\n");
+        JOptionPane.showMessageDialog(this, actionResult);
+    }
+
+    private void displayBrands() {
+        tableModel.setRowCount(0); // Очистить текущие данные
+        String[][] brands = parseDisplayBrands(carDAO.displayBrands()); // Предполагается, что displayBrands возвращает строку
+        for (String[] brand : brands) {
+            tableModel.addRow(brand);
+        }
+    }
+
+    private String[][] parseDisplayBrands(String data) {
+        String[] rows = data.split("\n");
+        String[][] result = new String[rows.length][3]; // Учитываем три колонки: ID Производителя, Название Производителя, Название Марки
+        for (int i = 0; i < rows.length; i++) {
+            result[i] = rows[i].split(",");
+        }
+        return result;
     }
 
     public static void main(String[] args) {
